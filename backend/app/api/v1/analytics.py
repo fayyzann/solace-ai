@@ -1,7 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, text
+from sqlalchemy import select, func, text, Integer
 from pydantic import BaseModel
 from app.database import get_db
 from app.core.dependencies import get_admin_user
@@ -34,7 +34,7 @@ async def get_summary(
         select(
             func.count().label("total"),
             func.avg(ChatMessage.confidence).label("avg_conf"),
-            func.sum(func.cast(ChatMessage.escalated, db.bind.dialect.type_compiler.__class__)).label("escalated"),
+            func.sum(func.cast(ChatMessage.escalated, Integer)).label("escalated"),
         ).where(ChatMessage.tenant_id == tenant_id)
     )
     row = msgs_result.one()

@@ -5,6 +5,7 @@ from app.tasks.celery_app import celery_app
 from app.database import AsyncSessionLocal
 from app.models.knowledge import KnowledgeSource, KnowledgeChunk, SourceStatus
 from app.services.ingestion.scraper import scrape_url
+from app.services.ingestion.parser import extract_text_from_pdf
 from app.services.ingestion.chunker import chunk_text
 from app.services.ingestion.embedder import embed_texts
 from sqlalchemy import select, text
@@ -35,6 +36,8 @@ async def _ingest(source_id: str, tenant_id: str):
         try:
             if source.source_type.value == "url":
                 raw_text = await scrape_url(source.source_url)
+            elif source.source_type.value == "pdf":
+                raw_text = extract_text_from_pdf(source.storage_path)
             else:
                 logger.error("Unsupported source type: %s", source.source_type)
                 source.status = SourceStatus.failed

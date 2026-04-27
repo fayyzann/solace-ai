@@ -1,3 +1,5 @@
+from pathlib import Path
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 
@@ -26,8 +28,12 @@ class Settings(BaseSettings):
 
     # Encryption
     encryption_master_key: str  # 32-byte hex
-    jwt_private_key: str
-    jwt_public_key: str
+
+    # JWT — set either the raw PEM content or a file path, not both
+    jwt_private_key: str = ""
+    jwt_public_key: str = ""
+    jwt_private_key_path: str = ""  # e.g. ../private.pem
+    jwt_public_key_path: str = ""   # e.g. ../public.pem
 
     # JWT config
     access_token_expire_minutes: int = 15
@@ -41,6 +47,30 @@ class Settings(BaseSettings):
     embedding_dims: int = 1024
     default_llm_provider: str = "groq"
     default_llm_model: str = "llama-3.1-8b-instant"
+
+    @model_validator(mode="after")
+    def resolve_jwt_keys(self) -> "Settings":
+        def _resolve(raw: str, path: str) -> str:
+            # Explicit path field takes priority
+            if path:
+                return Path(path).read_text().strip()
+            # Raw value looks like a file path rather than PEM content
+            if raw and not raw.lstrip().startswith("-----"):
+                return Path(raw.strip()).read_text().strip()
+            # Normalize literal \n sequences (common in CI/CD env vars)
+            if raw and "\\n" in raw:
+                return raw.replace("\\n", "\n")
+            return raw
+
+        self.jwt_private_key = _resolve(self.jwt_private_key, self.jwt_private_key_path)
+        self.jwt_public_key = _resolve(self.jwt_public_key, self.jwt_public_key_path)
+
+        if not self.jwt_private_key or not self.jwt_public_key:
+            raise ValueError(
+                "JWT keys must be set via JWT_PRIVATE_KEY / JWT_PUBLIC_KEY "
+                "or JWT_PRIVATE_KEY_PATH / JWT_PUBLIC_KEY_PATH"
+            )
+        return self
 
     @property
     def is_production(self) -> bool:
