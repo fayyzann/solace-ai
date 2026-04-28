@@ -15,10 +15,12 @@ htmlcov/
 .env
 .env.local
 .env.*.local
+# .env.test is intentionally NOT ignored — contains test-only keys safe to commit
 
 # Node
 node_modules/
-dist/
+widget/dist/
+dashboard/dist/
 .turbo/
 
 # IDEs

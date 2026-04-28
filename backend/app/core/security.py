@@ -1,3 +1,4 @@
+import asyncio
 import os
 import binascii
 import bcrypt
@@ -19,6 +20,10 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
+
+
+async def verify_password_async(plain: str, hashed: str) -> bool:
+    return await asyncio.to_thread(verify_password, plain, hashed)
 
 
 def create_access_token(subject: str, role: str, tenant_id: str) -> str:

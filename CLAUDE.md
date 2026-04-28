@@ -55,8 +55,17 @@ backend/
     unit/                  # test_security.py, test_confidence.py (no DB needed)
     integration/           # conftest.py with real DB fixtures
 uploads/                   # local PDF storage (dev only; use Supabase Storage in prod)
-widget/                    # iFrame chat widget (React — Phase 3)
-dashboard/                 # Admin dashboard (React — Phase 3)
+widget/                    # iFrame chat widget (React + Vite, port 5174)
+  src/
+    hooks/useChat.ts       # SSE streaming hook, session tracking
+    components/ChatWidget.tsx
+    index.css
+dashboard/                 # Admin dashboard (React + Vite, port 5173)
+  src/
+    api/client.ts          # axios + token refresh interceptor
+    context/AuthContext.tsx
+    pages/                 # Login, Knowledge, Analytics, Settings
+    components/            # Layout (sidebar nav), ProtectedRoute
 ```
 
 ---
@@ -71,6 +80,9 @@ cd backend
 alembic upgrade head                           # apply migrations
 uvicorn app.main:app --reload --port 8000      # API server
 celery -A app.tasks.celery_app worker --loglevel=info  # task worker (separate terminal)
+
+cd ../dashboard && npm run dev                 # admin dashboard → http://localhost:5173
+cd ../widget && npm run dev                    # chat widget   → http://localhost:5174?token=<widget_jwt>
 
 # Bootstrap first super admin (one-time)
 python scripts/create_super_admin.py --email admin@example.com --password secret
@@ -216,5 +228,5 @@ Chat endpoint streams `text/event-stream`. Each line: `data: <json>\n\n`
 ## Phase Status
 - ✅ **Phase 1** — Backend scaffold (models, services, routes, auth, RAG pipeline)
 - ✅ **Phase 2** — DB migration, super admin API, LLM config API, PDF ingestion, end-to-end RAG chat
-- 🔲 **Phase 3** — Frontend (widget iFrame + admin dashboard)
+- ✅ **Phase 3** — Frontend (React widget iFrame + admin dashboard with Knowledge/Analytics/Settings pages)
 - 🔲 **Phase 4** — Integration tests, Supabase storage wiring, deployment
