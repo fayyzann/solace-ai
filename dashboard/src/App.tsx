@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import Landing from "./pages/Landing";
+import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Knowledge from "./pages/Knowledge";
 import Analytics from "./pages/Analytics";
@@ -12,16 +14,17 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/"       element={<Landing />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login"  element={<Login />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
-              <Route index element={<Navigate to="/knowledge" replace />} />
               <Route path="/knowledge" element={<Knowledge />} />
               <Route path="/analytics" element={<Analytics />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings"  element={<Settings />} />
             </Route>
           </Route>
-          <Route path="*" element={<Navigate to="/knowledge" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
