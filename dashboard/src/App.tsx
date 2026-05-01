@@ -3,8 +3,8 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Landing from "./pages/Landing";
-import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import AcceptInvite from "./pages/AcceptInvite";
 import Knowledge from "./pages/Knowledge";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -14,9 +14,9 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/"       element={<Landing />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login"  element={<Login />} />
+          <Route path="/"              element={<Landing />} />
+          <Route path="/login"         element={<Login />} />
+          <Route path="/accept-invite" element={<AcceptInvite />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/knowledge" element={<Knowledge />} />

@@ -1,40 +1,46 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import { api } from "../api/client";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { Session, User } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 
 type AuthCtx = {
+  session: Session | null;
+  user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  loginWithTokens: (access: string, refresh: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthCtx | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    () => !!localStorage.getItem("access_token")
-  );
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { data } = await api.post("/auth/login", { email, password });
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("refresh_token", data.refresh_token);
-    setIsAuthenticated(true);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const loginWithTokens = useCallback((access: string, refresh: string) => {
-    localStorage.setItem("access_token", access);
-    localStorage.setItem("refresh_token", refresh);
-    setIsAuthenticated(true);
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.clear();
-    setIsAuthenticated(false);
-  }, []);
+  if (loading) return null;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, loginWithTokens, logout }}>
+    <AuthContext.Provider value={{
+      session,
+      user: session?.user ?? null,
+      isAuthenticated: !!session,
+      logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );

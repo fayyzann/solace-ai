@@ -6,9 +6,12 @@ from sqlalchemy import select, text
 from pydantic import BaseModel, EmailStr
 from app.database import get_db
 from app.core.dependencies import get_super_admin
-from app.core.security import hash_password, create_widget_token
+from app.core.security import create_widget_token
 from app.models.tenant import Tenant
 from app.models.user import User, UserRole
+from app.config import get_settings
+
+settings = get_settings()
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -27,6 +30,16 @@ class TenantResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InviteUserRequest(BaseModel):
+    email: EmailStr
+    redirect_url: str = ""  # where the invite link lands; defaults to SUPABASE_SITE_URL/accept-invite
+
+
+class InviteUserResponse(BaseModel):
+    email: str
+    message: str
 
 
 class CreateUserRequest(BaseModel):
@@ -95,39 +108,33 @@ async def create_tenant(
     )
 
 
-@router.post(
-    "/tenants/{tenant_id}/users",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-async def create_user(
-    tenant_id: uuid.UUID,
-    payload: CreateUserRequest,
+
+
+@router.post("/invite", response_model=InviteUserResponse, status_code=status.HTTP_201_CREATED)
+async def invite_user(
+    payload: InviteUserRequest,
     _: dict = Depends(get_super_admin),
-    db: AsyncSession = Depends(get_db),
 ):
-    tenant_result = await db.execute(
-        select(Tenant).where(Tenant.id == tenant_id, Tenant.deleted_at.is_(None))
-    )
-    if not tenant_result.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant not found")
+    """Send a Supabase invite email. The user clicks the link → /accept-invite page."""
+    if not settings.supabase_url or not settings.supabase_service_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Supabase not configured — set SUPABASE_URL and SUPABASE_SERVICE_KEY",
+        )
 
-    existing = await db.execute(
-        select(User).where(User.email == payload.email, User.deleted_at.is_(None))
-    )
-    if existing.scalar_one_or_none():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already in use")
+    from supabase import create_client
+    sb = create_client(settings.supabase_url, settings.supabase_service_key)
 
-    user = User(
-        tenant_id=tenant_id,
+    redirect_to = payload.redirect_url or None
+    try:
+        sb.auth.admin.invite_user_by_email(payload.email, options={"redirect_to": redirect_to} if redirect_to else {})
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+    return InviteUserResponse(
         email=payload.email,
-        hashed_password=hash_password(payload.password),
-        role=payload.role,
+        message=f"Invite sent to {payload.email}",
     )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-    return user
 
 
 @router.delete("/tenants/{tenant_id}", status_code=status.HTTP_204_NO_CONTENT)

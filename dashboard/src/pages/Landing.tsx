@@ -37,13 +37,13 @@ export default function Landing() {
       <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 80px", height: 64, borderBottom: "1px solid var(--slate-100)", position: "sticky", top: 0, background: "white", zIndex: 10 }}>
         <Logo size={16} />
         <div style={{ display: "flex", gap: 32 }}>
-          {["Features", "Pricing", "Docs"].map(l => (
+          {["Features", "Pricing"].map(l => (
             <a key={l} href={`#${l.toLowerCase()}`} style={{ fontSize: 14, color: "var(--slate-600)", textDecoration: "none", fontWeight: 450 }}>{l}</a>
           ))}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <Link to="/login" className="s-btn s-btn-ghost s-btn-sm">Sign in</Link>
-          <Link to="/signup" className="s-btn s-btn-primary s-btn-sm">Start for free</Link>
+          <a href="mailto:fizzan120@gmail.com" className="s-btn s-btn-primary s-btn-sm">Get access</a>
         </div>
       </nav>
 
@@ -61,10 +61,10 @@ export default function Landing() {
             White-label AI customer support for SaaS businesses. Upload your docs, embed the widget, watch support tickets disappear.
           </p>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            <Link to="/signup" className="s-btn s-btn-primary s-btn-lg" style={{ fontSize: 16, padding: "13px 28px" }}>Start for free</Link>
+            <a href="mailto:fizzan120@gmail.com" className="s-btn s-btn-primary s-btn-lg" style={{ fontSize: 16, padding: "13px 28px" }}>Request access</a>
             <a href="#features" className="s-btn s-btn-outline s-btn-lg">See features →</a>
           </div>
-          <p style={{ marginTop: 16, fontSize: 13, color: "var(--slate-400)" }}>No credit card required · Free forever on the Starter plan</p>
+          <p style={{ marginTop: 16, fontSize: 13, color: "var(--slate-400)" }}>Invite-only · we'll get back to you within one business day</p>
         </div>
 
         {/* Widget preview */}
@@ -173,50 +173,46 @@ export default function Landing() {
       {/* PRICING */}
       <section id="pricing" style={{ padding: "96px 80px", maxWidth: 1440, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <h2 style={{ fontSize: 40, fontWeight: 700, color: "var(--slate-900)", letterSpacing: "-0.02em", marginBottom: 16 }}>Simple pricing</h2>
-          <p style={{ fontSize: 16, color: "var(--slate-500)" }}>Start free. Scale as you grow.</p>
+          <h2 style={{ fontSize: 40, fontWeight: 700, color: "var(--slate-900)", letterSpacing: "-0.02em", marginBottom: 16 }}>Pricing</h2>
+          <p style={{ fontSize: 16, color: "var(--slate-500)" }}>Tailored to your usage. Get in touch and we'll find the right plan for you.</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 800, margin: "0 auto" }}>
-          {[
-            { name: "Starter", price: "$0", sub: "Forever free", primary: false, cta: "Start for free", features: ["1 knowledge base", "500 messages / month", "pgvector RAG", "Solace branding", "Community support"] },
-            { name: "Pro", price: "$49", sub: "per month", primary: true, cta: "Start Pro trial", features: ["Unlimited knowledge bases", "50,000 messages / month", "BYOK LLM (any provider)", "White-label widget", "Auto-escalation", "Priority support", "SSE streaming", "Analytics dashboard"] },
-          ].map(plan => (
-            <div key={plan.name} style={{ borderRadius: 16, border: plan.primary ? "2px solid var(--indigo-500)" : "1px solid var(--slate-200)", padding: 40, position: "relative", background: plan.primary ? "linear-gradient(145deg, var(--indigo-50), white)" : "white" }}>
-              {plan.primary && <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "var(--indigo-500)", color: "white", fontSize: 12, fontWeight: 600, padding: "4px 16px", borderRadius: 100 }}>Most popular</div>}
-              <div style={{ fontSize: 14, fontWeight: 600, color: plan.primary ? "var(--indigo-500)" : "var(--slate-600)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>{plan.name}</div>
-              <div style={{ fontSize: 48, fontWeight: 800, color: "var(--slate-900)", letterSpacing: "-0.03em", marginBottom: 4 }}>{plan.price}</div>
-              <div style={{ fontSize: 14, color: "var(--slate-400)", marginBottom: 32 }}>{plan.sub}</div>
-              <Link to="/signup" className={`s-btn s-btn-lg ${plan.primary ? "s-btn-primary" : "s-btn-outline"}`} style={{ width: "100%", justifyContent: "center", marginBottom: 28, display: "flex" }}>{plan.cta}</Link>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {plan.features.map(f => (
-                  <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "var(--slate-600)" }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill={plan.primary ? "var(--indigo-100)" : "var(--slate-100)"}/><path d="M8 12l3 3 5-5" stroke={plan.primary ? "var(--indigo-500)" : "var(--slate-500)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    {f}
-                  </div>
-                ))}
+        <div style={{ maxWidth: 640, margin: "0 auto", borderRadius: 20, border: "2px solid var(--indigo-500)", padding: "56px 64px", background: "linear-gradient(145deg, var(--indigo-50), white)", textAlign: "center" }}>
+          <div style={{ width: 56, height: 56, borderRadius: 14, background: "var(--indigo-500)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="1.5"/>
+            </svg>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: "var(--slate-900)", marginBottom: 12 }}>Contact us for pricing</div>
+          <p style={{ fontSize: 15, color: "var(--slate-500)", lineHeight: 1.7, marginBottom: 36, maxWidth: 380, margin: "0 auto 36px" }}>
+            We offer flexible plans based on message volume, number of knowledge bases, and support tier. Let's find the right fit.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, textAlign: "left", marginBottom: 40, maxWidth: 320, margin: "0 auto 40px" }}>
+            {["Unlimited knowledge bases", "BYOK LLM (any provider)", "White-label widget", "Auto-escalation to human agents", "SSE streaming", "Analytics dashboard", "Dedicated support"].map(f => (
+              <div key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "var(--slate-600)" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="var(--indigo-100)"/><path d="M8 12l3 3 5-5" stroke="var(--indigo-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                {f}
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <a href="mailto:fizzan120@gmail.com" className="s-btn s-btn-primary s-btn-lg" style={{ display: "inline-flex", fontSize: 15, padding: "13px 36px" }}>
+            Get in touch →
+          </a>
+          <p style={{ marginTop: 16, fontSize: 13, color: "var(--slate-400)" }}>We typically respond within one business day.</p>
         </div>
       </section>
 
       {/* FOOTER */}
       <footer style={{ borderTop: "1px solid var(--slate-100)", padding: "48px 80px", background: "var(--slate-50)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", maxWidth: 1440, margin: "0 auto" }}>
-          <div>
-            <Logo size={14} />
-            <p style={{ fontSize: 13, color: "var(--slate-400)", marginTop: 12, maxWidth: 260, lineHeight: 1.6 }}>AI customer support for SaaS teams who care about the experience.</p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", maxWidth: 1440, margin: "0 auto" }}>
+          <Logo size={14} />
+          <p style={{ fontSize: 13, color: "var(--slate-400)", margin: 0 }}>AI customer support for SaaS teams who care about the experience.</p>
+          <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+            <a href="#features" style={{ fontSize: 13, color: "var(--slate-500)", textDecoration: "none" }}>Features</a>
+            <a href="#pricing" style={{ fontSize: 13, color: "var(--slate-500)", textDecoration: "none" }}>Pricing</a>
+            <a href="mailto:fizzan120@gmail.com" style={{ fontSize: 13, color: "var(--slate-500)", textDecoration: "none" }}>Contact</a>
           </div>
-          {[["Product", "Features", "Pricing", "Changelog", "Roadmap"], ["Developers", "Docs", "API Reference", "Widget SDK", "Status"], ["Company", "Blog", "Careers", "Privacy", "Terms"]].map(([title, ...links]) => (
-            <div key={title}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--slate-700)", marginBottom: 14, letterSpacing: "0.05em", textTransform: "uppercase" }}>{title}</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {links.map(l => <a key={l} style={{ fontSize: 13, color: "var(--slate-500)", textDecoration: "none", cursor: "pointer" }}>{l}</a>)}
-              </div>
-            </div>
-          ))}
         </div>
-        <div style={{ maxWidth: 1440, margin: "48px auto 0", paddingTop: 24, borderTop: "1px solid var(--slate-200)", display: "flex", justifyContent: "space-between" }}>
+        <div style={{ maxWidth: 1440, margin: "32px auto 0", paddingTop: 24, borderTop: "1px solid var(--slate-200)", display: "flex", justifyContent: "space-between" }}>
           <span style={{ fontSize: 12, color: "var(--slate-400)" }}>© 2026 Solace Technologies, Inc.</span>
           <span style={{ fontSize: 12, color: "var(--slate-400)" }}>Built with ♥ for support teams</span>
         </div>

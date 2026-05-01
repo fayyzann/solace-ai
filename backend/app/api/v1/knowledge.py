@@ -1,5 +1,4 @@
 import uuid
-import aiofiles
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,8 +8,7 @@ from app.database import get_db
 from app.core.dependencies import get_admin_user
 from app.models.knowledge import KnowledgeSource, SourceType, SourceStatus
 from app.tasks.ingestion import ingest_knowledge_source
-
-UPLOAD_DIR = Path(__file__).resolve().parents[4] / "uploads"
+from app.services.storage import save_pdf, UPLOAD_DIR
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 
@@ -95,15 +93,8 @@ async def upload_pdf(
     await db.commit()
     await db.refresh(source)
 
-    dest_dir = UPLOAD_DIR / str(tenant_id)
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    dest_path = dest_dir / f"{source.id}.pdf"
-
-    async with aiofiles.open(dest_path, "wb") as f:
-        content = await file.read()
-        await f.write(content)
-
-    source.storage_path = str(dest_path)
+    content = await file.read()
+    source.storage_path = await save_pdf(content, str(tenant_id), str(source.id))
     await db.commit()
 
     ingest_knowledge_source.delay(str(source.id), str(tenant_id))

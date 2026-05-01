@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     # App
     environment: str = "development"
     log_level: str = "INFO"
+    allowed_origins: str = ""  # comma-separated list; empty = allow all in dev
 
     # Database
     database_url: str
@@ -18,9 +19,10 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://localhost:6379/0"
 
-    # Supabase storage
+    # Supabase (storage + auth)
     supabase_url: str = ""
     supabase_service_key: str = ""
+    supabase_jwt_secret: str = ""  # Project Settings → API → JWT Secret
 
     # AI
     jina_api_key: str

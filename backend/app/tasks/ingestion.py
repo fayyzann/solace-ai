@@ -1,4 +1,5 @@
 import asyncio
+import os
 import uuid
 import logging
 from app.tasks.celery_app import celery_app
@@ -8,6 +9,7 @@ from app.services.ingestion.scraper import scrape_url
 from app.services.ingestion.parser import extract_text_from_pdf
 from app.services.ingestion.chunker import chunk_text
 from app.services.ingestion.embedder import embed_texts
+from app.services.storage import download_pdf_to_tempfile
 from sqlalchemy import select, text
 
 logger = logging.getLogger(__name__)
@@ -37,7 +39,13 @@ async def _ingest(source_id: str, tenant_id: str):
             if source.source_type.value == "url":
                 raw_text = await scrape_url(source.source_url)
             elif source.source_type.value == "pdf":
-                raw_text = extract_text_from_pdf(source.storage_path)
+                local_path = download_pdf_to_tempfile(source.storage_path)
+                try:
+                    raw_text = extract_text_from_pdf(local_path)
+                finally:
+                    # Clean up temp file created by download_pdf_to_tempfile in production
+                    if local_path != source.storage_path:
+                        os.unlink(local_path)
             else:
                 logger.error("Unsupported source type: %s", source.source_type)
                 source.status = SourceStatus.failed
