@@ -10,6 +10,34 @@ Solace lets businesses embed an AI-powered support chatbot on their website in m
 
 ---
 
+## Engineering highlights
+
+Solace is built as a backend-first AI product, not just a chat interface. The repository demonstrates:
+
+- **Tenant-aware API design:** JWT tenant context and PostgreSQL row-level security for data separation.
+- **Retrieval-based answers:** asynchronous knowledge ingestion, Jina embeddings, pgvector search, and confidence-aware handoff.
+- **Provider flexibility:** an LLM routing layer with bring-your-own-key options and encrypted tenant credentials.
+- **Operational boundaries:** Celery/Redis jobs for ingestion, server-sent events for streaming, and dedicated widget and dashboard clients.
+- **Security considerations:** server-side provider credentials and safeguards for URL ingestion.
+
+### System overview
+
+```mermaid
+flowchart LR
+    Visitor[Website visitor] --> Widget[React embed widget]
+    Widget --> API[FastAPI API]
+    Admin[Admin dashboard] --> API
+    API --> Retrieval[RAG retrieval and confidence]
+    Retrieval <--> DB[(PostgreSQL + pgvector)]
+    API --> Router[LLM provider router]
+    Router --> Models[Groq / tenant-provided LLM]
+    API --> Redis[(Redis task broker)]
+    Redis --> Worker[Celery ingestion worker]
+    Worker --> DB
+```
+
+---
+
 ## Stack
 
 | Layer | Technology |
